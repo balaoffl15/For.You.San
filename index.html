@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For San</title>
+    <!-- Google Fonts for Luxury Editorial Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Alex+Brush&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #FAF8FC;
+            --accent-purple: #6F4A9E;
+            --accent-muted: #A88BC7;
+            --accent-light: #EDE6F5;
+            --text-dark: #17151A;
+            --text-muted: #6F6A73;
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-script: 'Alex Brush', cursive;
+            --transition-speed: 0.8s;
+            --ease-editorial: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-primary);
+            color: var(--text-dark);
+            font-family: var(--font-sans);
+            font-weight: 300;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Ambient Minimal Audio Control */
+        .audio-control {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+        .audio-control.visible {
+            opacity: 0.7;
+            pointer-events: auto;
+        }
+
+        .audio-control:hover {
+            opacity: 1;
+        }
+
+        .audio-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--accent-purple);
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .audio-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Layout Container */
+        .viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity var(--transition-speed) var(--ease-editorial),
+                        transform var(--transition-speed) var(--ease-editorial),
+                        visibility var(--transition-speed);
+            transform: translateY(15px);
+            overflow-y: auto;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .page.exit-up {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+
+        /* Typography Utilities */
+        .script-text {
+            font-family: var(--font-script);
+            color: var(--accent-purple);
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        .serif-heading {
+            font-family: var(--font-serif);
+            font-weight: 300;
+            color: var(--text-dark);
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            line-height: 1.25;
+            letter-spacing: -0.01em;
+            text-align: center;
+        }
+
+        .serif-heading em {
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .uppercase-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .body-editorial {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 620px;
+            text-align: center;
+        }
+
+        .highlight-purple {
+            color: var(--accent-purple);
+            font-weight: 400;
+        }
+
+        /* Navigation Link Button */
+        .btn-continue {
+            margin-top: 3.5rem;
+            background: none;
+            border: none;
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            padding: 0.5rem 0.2rem;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-continue::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--accent-purple);
+            transform: scaleX(0.3);
+            transform-origin: center;
+            transition: transform 0.4s var(--ease-editorial);
+            opacity: 0.6;
+        }
+
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            color: var(--accent-purple);
+        }
+
+        .btn-continue:hover::after {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+
+        /* Content Sequence Staggering */
+        .seq-item {
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.8s var(--ease-editorial), transform 0.8s var(--ease-editorial);
+        }
+
+        .page.active .seq-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page.active .seq-item:nth-child(1) { transition-delay: 0.2s; }
+        .page.active .seq-item:nth-child(2) { transition-delay: 0.4s; }
+        .page.active .seq-item:nth-child(3) { transition-delay: 0.6s; }
+        .page.active .seq-item:nth-child(4) { transition-delay: 0.8s; }
+        .page.active .seq-item:nth-child(5) { transition-delay: 1.0s; }
+        .page.active .seq-item:nth-child(6) { transition-delay: 1.2s; }
+        .page.active .seq-item:nth-child(7) { transition-delay: 1.4s; }
+        .page.active .seq-item:nth-child(8) { transition-delay: 1.6s; }
+
+        /* Story Chapter Styles (Page 4) */
+        .story-container {
+            max-width: 580px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .story-chapter {
+            position: relative;
+        }
+
+        .story-chapter:not(:last-child)::after {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 1px;
+            background-color: var(--accent-light);
+            margin: 2rem auto 0 auto;
+        }
+
+        .chapter-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .chapter-text {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        /* Subtle Offsets (Page 5) */
+        .memories-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 520px;
+            text-align: center;
+        }
+
+        .memory-line {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            font-weight: 300;
+        }
+
+        .memory-line:nth-child(even) {
+            transform: translateX(12px);
+        }
+
+        .memory-line:nth-child(3n) {
+            transform: translateX(-10px);
+        }
+
+        /* Vinyl Object Styles (Page 6) */
+        .vinyl-wrapper {
+            margin: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .vinyl-record {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #2a282e 0%, #17151a 70%, #0d0c0e 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12), inset 0 0 0 2px rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: spin 12s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .vinyl-record.playing {
+            animation-play-state: running;
+        }
+
+        .vinyl-grooves {
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.04);
+            box-shadow: inset 0 0 0 10px rgba(255,255,255,0.02), inset 0 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .vinyl-center {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background-color: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(111, 74, 158, 0.4);
+        }
+
+        .vinyl-center::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: var(--bg-primary);
+            border-radius: 50%;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Wishes List (Page 7) */
+        .wishes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+            text-align: center;
+            max-width: 500px;
+            margin: 1.5rem 0;
+        }
+
+        .wish-item {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        /* Interactive Envelope Scene (Page 9) */
+        .envelope-scene {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            margin: 2.5rem 0;
+            cursor: pointer;
+            perspective: 1000px;
+        }
+
+        .envelope-base {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #FAF9FB;
+            border: 1px solid #EAE6EF;
+            box-shadow: 0 15px 35px rgba(23, 21, 26, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid #F4F1F7;
+            border-right: 160px solid #F4F1F7;
+            border-bottom: 110px solid #ECE7F2;
+            border-top: 110px solid transparent;
+            z-index: 3;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 120px solid #E5DFEC;
+            transform-origin: top center;
+            transition: transform 0.8s var(--ease-editorial);
+            z-index: 4;
+        }
+
+        .envelope-seal {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 42px;
+            height: 42px;
+            background-color: var(--accent-purple);
+            border-radius: 50%;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(111, 74, 158, 0.3);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .envelope-letter-preview {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            right: 20px;
+            height: 180px;
+            background: #FFFFFF;
+            border: 1px solid #EAE6EF;
+            box-shadow: 0 0 10px rgba(0,0,0,0.02);
+            z-index: 2;
+            transition: transform 1s var(--ease-editorial);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Envelope Open Animation Sequence */
+        .envelope-scene.opening .envelope-seal {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.8);
+        }
+
+        .envelope-scene.opening .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-scene.opening .envelope-letter-preview {
+            transform: translateY(-120px);
+            z-index: 3;
+        }
+
+        /* Editorial Birthday Letter Page (Page 10) */
+        .letter-paper {
+            background: #FFFFFF;
+            max-width: 680px;
+            width: 100%;
+            padding: 2.5rem 1.5rem;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .letter-heading {
+            font-family: var(--font-serif);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 400;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .letter-body {
+            font-family: var(--font-serif);
+            font-size: clamp(1.15rem, 2.2vw, 1.3rem);
+            line-height: 1.9;
+            color: #2D2A32;
+            font-weight: 300;
+        }
+
+        .letter-body p {
+            margin-bottom: 1.6rem;
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .letter-body p.thanks-list {
+            text-align: left;
+            margin-bottom: 0.4rem;
+        }
+
+        /* Page 11 Final Clean Stationery Inspiration */
+        .final-composition {
+            max-width: 600px;
+            text-align: center;
+            display: flex;
+            flex-direction: flex-column;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .quote-serif {
+            font-family: var(--font-serif);
+            font-size: clamp(1.3rem, 3vw, 1.75rem);
+            line-height: 1.6;
+            color: var(--text-dark);
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        .signature-block {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sign-off {
+            font-family: var(--font-script);
+            font-size: 2.2rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .author-name {
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            letter-spacing: 0.08em;
+            color: var(--text-dark);
+            margin-bottom: 0.8rem;
+        }
+
+        .signature-line {
+            width: 40px;
+            height: 1px;
+            background-color: var(--accent-purple);
+            opacity: 0.7;
+        }
+
+        /* Accessibility Motion Preference */
+        @media (prefers-reduced-motion: reduce) {
+            .page, .seq-item, .envelope-flap, .envelope-letter-preview, .vinyl-record {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
+        /* Responsive Fine-Tuning */
+        @media (max-width: 600px) {
+            .page { padding: 2.5rem 1.25rem; }
+            .envelope-scene { transform: scale(0.88); }
+            .letter-paper { padding: 1rem 0.5rem; }
+            .story-container { gap: 1.5rem; }
+            .memory-line:nth-child(even), .memory-line:nth-child(3n) { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Minimal Ambient Audio Control -->
+    <div class="audio-control" id="audioControl">
+        <button class="audio-btn" id="audioToggleBtn" aria-label="Toggle Audio">
+            <svg id="musicIcon" viewBox="0 0 24 24">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Hidden Audio Element -->
+    <audio id="bgAudio" loop preload="auto">
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+
+    <main class="viewport">
+
+        <!-- PAGE 1: OPENING INVITATION -->
+        <section class="page active" id="page-1">
+            <div class="seq-item script-text" style="margin-bottom: 1rem;">For someone special...</div>
+            <h1 class="seq-item serif-heading" style="font-size: clamp(3rem, 7vw, 4.5rem);">Hey San</h1>
+            <div class="seq-item" style="margin: 1.2rem 0; color: var(--accent-purple); font-size: 0.9rem;">❤️</div>
+            <p class="seq-item body-editorial" style="font-size: 1.1rem;">I made something for you.</p>
+            <button class="btn-continue seq-item" onclick="nextPage(2)">Continue →</button>
+        </section>
+
+        <!-- PAGE 2: BIRTHDAY REVEAL + MUSIC START -->
+        <section class="page" id="page-2">
+            <div class="seq-item uppercase-label">FOR SAN</div>
+            <h2 class="seq-item serif-heading">Happiest Birthday, San</h2>
+            <div class="seq-item" style="margin: 1rem 0; font-size: 1.2rem;">🌻</div>
+            <p class="seq-item body-editorial" style="margin-bottom: 1rem;">Today is a little more special because it belongs to you.</p>
+            <div class="seq-item script-text" style="font-size: 1.8rem;">And I wanted to make something just for you.</div>
+            <button class="btn-continue seq-item" onclick="nextPage(3)">Continue →</button>
+        </section>
+
+        <!-- PAGE 3: A FEW THINGS ABOUT YOU -->
+        <section class="page" id="page-3">
+            <div class="seq-item uppercase-label">A FEW THINGS ABOUT YOU</div>
+            <div style="display: flex; flex-direction: column; gap: 1.8rem; align-items: center; margin: 1rem 0;">
+                <div class="seq-item serif-heading" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">You listen.</div>
+                <div class="seq-item serif-heading" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">You care.</div>
+                <div class="seq-item serif-heading" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">You make difficult days feel a little <span class="highlight-purple">lighter</span>.</div>
+                <div class="seq-item serif-heading" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">And somehow, you make ordinary moments memorable.</div>
+            </div>
+            <button class="btn-continue seq-item" onclick="nextPage(4)">Continue →</button>
+        </section>
+
+        <!-- PAGE 4: OUR LITTLE STORY -->
+        <section class="page" id="page-4">
+            <div class="seq-item uppercase-label">OUR LITTLE STORY</div>
+            <h2 class="seq-item serif-heading" style="margin-bottom: 2.5rem;">Somewhere along the way...</h2>
+          
